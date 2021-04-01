@@ -10,13 +10,14 @@ import About from './components/pages/About'
 import './App.css'
 import axios from 'axios'
 
+import { GithubProvider } from './context/GithubContext'
 
 const App = () => {
     const [users, setUsers] = useState([])
     const [user, setUser] = useState({})
     const [repos, setRepos] = useState([])
     const [loading, setLoading] = useState(false)
-    const [alertMessage, setAlertMessage] = useState(null)
+
 
     const searchUsers = async text => {
         setLoading(true)
@@ -41,44 +42,39 @@ const App = () => {
 
     const clearUsers = () => setUsers([])
 
-    const setAlert = (content, type) => {
-        setAlertMessage({ content: content, type: type })
-
-        setTimeout(() => setAlertMessage(null), 5000)
-    }
-
     return (
-        <Router>
-            <div className='App'>
-                <Navbar />
-                <div className="container">
-                    <Alert alert={alertMessage} />
-                    <Switch>
-                        <Route exact path='/' render={props => (
-                            <Fragment>
-                                <Search
-                                    searchUsers={searchUsers}
-                                    clearUsers={clearUsers}
-                                    showClearButton={users.length > 0}
-                                    setAlert={setAlert}
-                                />
-                                {loading ? <Spinner /> : <Users users={users} />}
-                            </Fragment>
-                        )} />
-                        <Route exact path='/about' component={About} />
-                        <Route exact path='/user/:login' render={props => (
-                            <User
-                                {...props}
-                                getUser={getUser}
-                                getUserRepos={getUserRepos}
-                                user={user}
-                                repos={repos}
-                                loading={loading} />
-                        )} />
-                    </Switch>
+        <GithubProvider>
+            <Router>
+                <div className='App'>
+                    <Navbar />
+                    <div className="container">
+                        <Alert />
+                        <Switch>
+                            <Route exact path='/' render={props => (
+                                <Fragment>
+                                    <Search
+                                        searchUsers={searchUsers}
+                                        clearUsers={clearUsers}
+                                        showClearButton={users.length > 0}
+                                    />
+                                    {loading ? <Spinner /> : <Users users={users} />}
+                                </Fragment>
+                            )} />
+                            <Route exact path='/about' component={About} />
+                            <Route exact path='/user/:login' render={props => (
+                                <User
+                                    {...props}
+                                    getUser={getUser}
+                                    getUserRepos={getUserRepos}
+                                    user={user}
+                                    repos={repos}
+                                    loading={loading} />
+                            )} />
+                        </Switch>
+                    </div>
                 </div>
-            </div>
-        </Router>
+            </Router>
+        </GithubProvider>
     );
 }
 
